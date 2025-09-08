@@ -7,7 +7,7 @@ import os
 import re
 
 # Directly set API Key (for testing only)
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDawUYRDIv0j94bMLOnvuTTNdkaZiwRqzM"
+os.environ["GOOGLE_API_KEY"] = ""
 
 # Initialize Gemini Model
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.9)
