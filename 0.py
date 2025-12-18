@@ -9,13 +9,20 @@ import io
 st.set_page_config(page_title="Excel Comparison Tool", layout="wide")
 
 st.title("📊 R0 vs R1 Excel Comparison Tool")
-st.write("Upload two Excel files (R0 & R1) to compare based on **Tag** column")
+st.write("Upload two Excel files and click **Run Comparison**")
 
 # === File Upload ===
 r0_file = st.file_uploader("Upload R0.xlsx", type=["xlsx"])
 r1_file = st.file_uploader("Upload R1.xlsx", type=["xlsx"])
 
-if r0_file and r1_file:
+# === Run Button ===
+run_btn = st.button("▶ Run Comparison")
+
+if run_btn:
+
+    if not r0_file or not r1_file:
+        st.warning("⚠️ Please upload both R0.xlsx and R1.xlsx before running.")
+        st.stop()
 
     try:
         # === Load Data ===
@@ -27,11 +34,11 @@ if r0_file and r1_file:
             st.error("❌ Both files must contain a 'Tag' column")
             st.stop()
 
-        # Remove duplicates
+        # Drop duplicates
         r0_df = r0_df.drop_duplicates(subset='Tag').set_index('Tag')
         r1_df = r1_df.drop_duplicates(subset='Tag').set_index('Tag')
 
-        # Maintain R0 column order
+        # Column handling
         r0_columns = list(r0_df.columns)
         all_columns = sorted(
             set(r0_df.columns).union(set(r1_df.columns)),
@@ -82,11 +89,11 @@ if r0_file and r1_file:
         final_columns = ["Tag", "Change_Type"] + all_columns + ["Change_Summary"]
         comparison_df = comparison_df[final_columns]
 
-        # === Display Preview ===
+        # === Preview ===
         st.subheader("🔍 Comparison Preview")
         st.dataframe(comparison_df, use_container_width=True)
 
-        # === Create Excel File in Memory ===
+        # === Excel Creation ===
         wb = Workbook()
         ws = wb.active
         ws.title = "Comparison Summary"
@@ -105,9 +112,8 @@ if r0_file and r1_file:
         timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M")
         filename = f"Vimal_Comparison_R0_vs_R1_{timestamp}.xlsx"
 
-        # === Download Button ===
         st.download_button(
-            label="⬇️ Download Comparison Excel",
+            "⬇️ Download Comparison Excel",
             data=buffer,
             file_name=filename,
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
